@@ -1,20 +1,24 @@
 use std::collections::HashMap;
-
 use mysql::{Pool, Opts, OptsBuilder, Value};
 use mysql::prelude::Queryable;
 use once_cell::sync::OnceCell;
+use dotenvy::dotenv;
+use std::env;
+
 
 use crate::structs::{Component, Machine};
 
 static DB_POOL: OnceCell<Pool> = OnceCell::new();
 
 pub fn init_db() -> Result<(), mysql::Error> {
+    dotenv().ok();
+
     let opts = OptsBuilder::new()
-        .ip_or_hostname(Some("localhost"))
-        .tcp_port(8889)
-        .user(Some("root"))
-        .pass(Some("root"))
-        .db_name(Some("siliconmap"));
+        .ip_or_hostname(Some(env::var("DB_HOST").expect("DB_HOST must be set")))
+        .tcp_port(env::var("DB_PORT").expect("DB_PORT must be set").parse().expect("DB_PORT must be a number"))
+        .user(Some(env::var("DB_USER").expect("DB_USER must be set")))
+        .pass(Some(env::var("DB_PASS").expect("DB_PASS must be set")))
+        .db_name(Some(env::var("DB_NAME").expect("DB_NAME must be set")));
 
     let pool = Pool::new(Opts::from(opts))?;
 

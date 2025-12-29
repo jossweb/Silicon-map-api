@@ -1,4 +1,4 @@
-use actix_web::{get, post, web, App, HttpServer, Responder, HttpRequest, HttpResponse, http::StatusCode};
+use actix_web::{get, App, HttpServer, Responder, HttpResponse};
 use crate::sql_request::{test_db, init_db};
 use crate::simulator::simulator;
 
