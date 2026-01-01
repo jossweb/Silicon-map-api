@@ -1389,6 +1389,7 @@ dependencies = [
  "mysql",
  "once_cell",
  "rand",
+ "serde",
 ]
 
 [[package]]

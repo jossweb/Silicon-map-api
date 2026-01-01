@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use mysql::{Pool, Opts, OptsBuilder, Value};
+use mysql::{Opts, OptsBuilder, Pool, Value};
 use mysql::prelude::Queryable;
 use once_cell::sync::OnceCell;
 use dotenvy::dotenv;
@@ -66,7 +66,7 @@ pub fn get_all_component()->Vec<Component>{
         Err(_) => return Vec::new(),
     };
 
-    conn.query_map("SELECT id FROM components WHERE status = 'actually_use';", |id| {
+    conn.query_map("SELECT components.id FROM components INNER JOIN machines ON machines.id = components.machine_id WHERE components.status = 'actually_use' AND machines.status <> 'Offline';", |id| {
         Component{id}
     }).unwrap_or_default()
 }
@@ -130,6 +130,41 @@ pub fn set_load(map: HashMap<u32, u32>) -> bool {
     }
 
     match conn.exec_drop(stmt, params) {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+pub fn stop_one_machine(machine_id: i32) -> bool {
+    let pool = DB_POOL.get().expect("DB not initialized");
+
+    let mut conn = match pool.get_conn() {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+
+    let result = conn.exec_drop(
+        "UPDATE machines SET status = 'Offline' WHERE id = ?",
+        (machine_id,),
+    );
+
+    match result {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+pub fn stop_all_machine() -> bool {
+    let pool = DB_POOL.get().expect("DB not initialized");
+
+    let mut conn = match pool.get_conn() {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+    let result = conn.exec_drop(
+        "UPDATE machines SET status = 'Offline'",
+        (),
+    );
+
+    match result {
         Ok(_) => true,
         Err(_) => false,
     }
