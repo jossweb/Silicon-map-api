@@ -1,7 +1,7 @@
 use actix_web::{get, App, HttpServer, Responder, HttpResponse, web};
 use crate::sql_request::{test_db, init_db};
 use crate::simulator::{simulator, start_high_temperature};
-use crate::machine_management::{stop_machine};
+use crate::machine_management::{start_stop_machine};
 use serde::Deserialize;
 
 mod sql_request;
@@ -17,7 +17,19 @@ struct StopMachineQuery {
 #[get("/stop_machine")]
 async fn stop_machine_handler(query: web::Query<StopMachineQuery>) -> impl Responder{
     let machine_id = query.machine;
-    let response = stop_machine(machine_id);
+    let response = start_stop_machine("Offline".to_string(), machine_id);
+    HttpResponse::Ok().body(format!("{}", response))
+}
+#[get("/start_machine")]
+async fn start_machine_handler(query: web::Query<StopMachineQuery>) -> impl Responder{
+    let machine_id = query.machine;
+    let response = start_stop_machine("Online".to_string(), machine_id);
+    HttpResponse::Ok().body(format!("{}", response))
+}
+#[get("/set_warning_machine")]
+async fn warning_machine_handler(query: web::Query<StopMachineQuery>) -> impl Responder{
+    let machine_id = query.machine;
+    let response = start_stop_machine("Maintenance".to_string(), machine_id);
     HttpResponse::Ok().body(format!("{}", response))
 }
 #[get("/test_db")]
@@ -42,6 +54,8 @@ async fn main() -> std::io::Result<()> {
         .service(db_test)
         .service(high_temperature_mode)
         .service(stop_machine_handler)
+        .service(start_machine_handler)
+        .service(warning_machine_handler)
     })
     .bind(("0.0.0.0", 2526))?
     .run()

@@ -134,7 +134,7 @@ pub fn set_load(map: HashMap<u32, u32>) -> bool {
         Err(_) => false,
     }
 }
-pub fn stop_one_machine(machine_id: i32) -> bool {
+pub fn start_stop_one_machine(status : String, machine_id: i32) -> bool {
     let pool = DB_POOL.get().expect("DB not initialized");
 
     let mut conn = match pool.get_conn() {
@@ -143,8 +143,8 @@ pub fn stop_one_machine(machine_id: i32) -> bool {
     };
 
     let result = conn.exec_drop(
-        "UPDATE machines SET status = 'Offline' WHERE id = ?",
-        (machine_id,),
+        "UPDATE machines SET status = ? WHERE id = ?",
+        (status, machine_id,),
     );
 
     match result {
@@ -152,16 +152,17 @@ pub fn stop_one_machine(machine_id: i32) -> bool {
         Err(_) => false,
     }
 }
-pub fn stop_all_machine() -> bool {
+pub fn start_stop_all_machine(status : String) -> bool {
     let pool = DB_POOL.get().expect("DB not initialized");
 
     let mut conn = match pool.get_conn() {
         Ok(c) => c,
         Err(_) => return false,
     };
+
     let result = conn.exec_drop(
-        "UPDATE machines SET status = 'Offline'",
-        (),
+        "UPDATE machines SET status = ?",
+        (status,),
     );
 
     match result {
