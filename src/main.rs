@@ -44,7 +44,7 @@ async fn high_temperature_mode()-> impl Responder {
 }
 #[actix_web::main] 
 async fn main() -> std::io::Result<()> {
-    println!("Listening on localhost:2526");
+    println!("Listening on port 2526");
     init_db().expect("Failed to initialize DB");
     actix_rt::spawn(async {
         simulator().await;
