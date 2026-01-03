@@ -3,7 +3,7 @@ use mysql::{Opts, OptsBuilder, Pool, Value};
 use mysql::prelude::Queryable;
 use once_cell::sync::OnceCell;
 use dotenvy::dotenv;
-use std::env;
+use std::{env};
 
 
 use crate::structs::{Component, Machine};
@@ -163,6 +163,96 @@ pub fn start_stop_all_machine(status : String) -> bool {
     let result = conn.exec_drop(
         "UPDATE machines SET status = ?",
         (status,),
+    );
+
+    match result {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+pub fn create_machine_db(hostname : String, ip_addr : String, mac_addr : String, os : String, machine_type : String) -> bool {
+    let pool = DB_POOL.get().expect("DB not initialized");
+
+    let mut conn = match pool.get_conn() {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+
+    let result = conn.exec_drop(
+        "INSERT INTO machines (hostname, ip_address, mac_address, os, status, type) VALUES (?, ?, ?, ?, 'Offline', ?);",
+        (hostname, ip_addr, mac_addr, os, machine_type),
+    );
+
+    match result {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+pub fn create_component_db(brand : String, model : String, machine_id : Option<String>, spec_value_primary : Option<i32>, spec_value_secondary : Option<i32>, component_type : String) -> bool {
+    let pool = DB_POOL.get().expect("DB not initialized");
+
+    let mut conn = match pool.get_conn() {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+
+    let result;
+    if spec_value_primary.is_some() &&  spec_value_secondary.is_some(){
+        result = conn.exec_drop(
+        "INSERT INTO components (brand, model, machine_id, spec_value_primary, spec_value_secondary, type) VALUES (?, ?, ?, ?, ?, ?);",
+        (brand, model, machine_id, spec_value_primary, spec_value_secondary, component_type),
+        );
+    }else if spec_value_primary.is_some(){
+        result = conn.exec_drop(
+        "INSERT INTO components (brand, model, machine_id, spec_value_primary, type) VALUES (?, ?, ?, ?, ?);",
+        (brand, model, machine_id, spec_value_primary, component_type),
+        );
+    }else if spec_value_secondary.is_some(){
+        result = conn.exec_drop(
+        "INSERT INTO components (brand, model, machine_id, spec_value_secondary, type) VALUES (?, ?, ?, ?, ?);",
+        (brand, model, machine_id, spec_value_secondary, component_type),
+        );
+    }else{
+        result = conn.exec_drop(
+        "INSERT INTO components (brand, model, machine_id, type) VALUES (?, ?, ?, ?);",
+        (brand, model, machine_id, component_type),
+        );
+    }
+
+    match result {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+pub fn delete_machine_db(id:i32) -> bool {
+    let pool = DB_POOL.get().expect("DB not initialized");
+
+    let mut conn = match pool.get_conn() {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+
+    let result = conn.exec_drop(
+        "DELETE FROM machines WHERE id = ?;",
+        (id,),
+    );
+
+    match result {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+pub fn delete_component_db(id:i32) -> bool {
+    let pool = DB_POOL.get().expect("DB not initialized");
+
+    let mut conn = match pool.get_conn() {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+
+    let result = conn.exec_drop(
+        "DELETE FROM components WHERE id = ?;",
+        (id,),
     );
 
     match result {
