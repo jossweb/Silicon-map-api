@@ -4,6 +4,8 @@ use mysql::prelude::Queryable;
 use once_cell::sync::OnceCell;
 use dotenvy::dotenv;
 use std::{env};
+use crate::login_safety::{verify_password};
+use rand::{thread_rng, Rng, distributions::Alphanumeric};
 
 
 use crate::structs::{Component, Machine};
@@ -259,4 +261,61 @@ pub fn delete_component_db(id:i32) -> bool {
         Ok(_) => true,
         Err(_) => false,
     }
+}
+pub fn login_check(username:String, clear_pass:String) -> String{
+
+    let pool = DB_POOL.get().expect("DB not initialized");
+
+    let mut conn = match pool.get_conn() {
+        Ok(c) => c,
+        Err(_) => return "".to_string(),
+    };
+    let res: Option<(u32, String)> = conn.exec_first(
+        "SELECT id, hash_pass FROM api_login WHERE username = ?",
+        (username, ),
+    ).unwrap_or(None);
+
+    if let Some((user_id, hash)) = res {
+        if verify_password(hash, clear_pass) {
+            let token: String = thread_rng()
+                .sample_iter(&Alphanumeric)
+                .take(40)
+                .map(char::from)
+                .collect();
+
+            let result_add_token = conn.exec_drop(
+                "INSERT INTO api_token (user_id, token, expiration, use_time) VALUES (?, ?, NOW() + INTERVAL 1 HOUR, 0)",
+                (user_id, token.clone()),
+            );
+            
+            return match result_add_token {
+                Ok(_) => token,
+                Err(_) => "".to_string(),
+            };
+        }
+    }
+    "".to_string()
+}
+
+pub fn check_token(token: String) -> bool {
+    let pool = DB_POOL.get().expect("DB not initialized");
+
+    let mut conn = match pool.get_conn() {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+
+    let res: Option<u32> = conn.exec_first(
+        "SELECT id FROM api_token WHERE token = ? AND expiration > NOW()",
+        (&token,)
+    ).unwrap_or(None);
+
+    if res.is_some() {
+         let _ = conn.exec_drop(
+            "UPDATE api_token SET use_time = use_time + 1 WHERE token = ?",
+            (&token,),
+        );
+        return true;
+    }
+    false
 }

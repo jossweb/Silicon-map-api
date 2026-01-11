@@ -23,7 +23,7 @@ pub async fn simulator(){
         prev_temp = generate_temp(machine_list, 65, prev_temp.clone());
         prev_load = generate_load(component_list, 60, prev_load.clone());
 
-        sleep(Duration::from_secs(10)).await; 
+        sleep(Duration::from_secs(30)).await; 
     }
 
 }
@@ -51,8 +51,8 @@ fn generate_temp(machine_list: Vec<Machine>, base_temp:i32, prev_temp : HashMap<
                     _ => base_temp - 10
                 }
             }
-            let mut rand = rand::rng();
-            let random_val: f32 = rand.random_range(0.6..=1.6);
+            let mut rand = rand::thread_rng();
+            let random_val: f32 = rand.gen_range(0.6..=1.6);
             let mut new_temp = temp as f32 * random_val;
 
             if new_temp > 130.0 {
@@ -77,12 +77,12 @@ fn generate_load(component_list: Vec<Component>, base_load:u32, prev_load : Hash
         }else{
             load = base_load;
         }
-        let mut rand = rand::rng();
-        let random_val: f32 = rand.random_range(0.6..=1.6);
+        let mut rand = rand::thread_rng();
+        let random_val: f32 = rand.gen_range(0.6..=1.6);
         let mut new_load = load as f32 * random_val;
 
         // new process start on component 
-        new_load += match rand.random_range(0..=5){
+        new_load += match rand.gen_range(0..=5){
             4 => 10.0,
             5 => 20.0,
             _ => 0.0,
