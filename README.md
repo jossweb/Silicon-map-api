@@ -16,12 +16,12 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 
 #### Query parameters
 
-| Name    | Type | Required | Description |
+| Name | Type | Required | Description |
 |--------|------|----------|-------------|
-| machine | int  | No       | ID of the machine to stop |
+| machine | int | No | ID of the machine to stop |
 
-- If no parameter is provided, this endpoint will stop **all machines stored in the database**.
-- If `machine` is provided, only the specified machine will be stopped.
+- If no parameter is provided, this endpoint will stop all machines stored in the database.
+- If machine is provided, only the specified machine will be stopped.
 
 ---
 
@@ -34,10 +34,10 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 
 | Name    | Type | Required | Description |
 |--------|------|----------|-------------|
-| machine | int  | No       | ID of the machine to start |
+| machine | int  | No | ID of the machine to start |
 
-- If no parameter is provided, this endpoint will start **all machines stored in the database**.
-- If `machine` is provided, only the specified machine will be started.
+- If no parameter is provided, this endpoint will start all machines stored in the database.
+- If machine is provided, only the specified machine will be started.
 
 ---
 
@@ -48,12 +48,12 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 
 #### Query parameters
 
-| Name    | Type | Required | Description |
+| Name | Type | Required | Description |
 |--------|------|----------|-------------|
-| machine | int  | No       | ID of the machine to set in maintenance mode |
+| machine | int  | No | ID of the machine to set in maintenance mode |
 
 - If no parameter is provided, this endpoint will set **all machines** in maintenance state.
-- If `machine` is provided, only the specified machine will be affected.
+- If machine is provided, only the specified machine will be affected.
 
 ---
 
@@ -150,8 +150,7 @@ Checks the database connection and returns its status.
 
 ## Database structure
 
-The mysql database schema can be found here:  
-https://github.com/jossweb/silicon-map/blob/main/sql-struct/siliconmap.sql
+The mysql database schema can be found at `/struct-sql/db.sql`
 
 
 ### Warning

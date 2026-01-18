@@ -57,7 +57,9 @@ fn generate_temp(machine_list: Vec<Machine>, base_temp:i32, prev_temp : HashMap<
 
             if new_temp > 130.0 {
                 new_temp = 125.0;
-            }   
+            }else if new_temp < 20.0{
+                new_temp = 25.0 * rand.gen_range(1.0..=1.8);
+            }
 
             map.insert(machine.id, new_temp as i32);
         }
