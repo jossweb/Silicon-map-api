@@ -9,6 +9,16 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 
 ## Endpoints
 
+### Login (get your token)
+- **URL**: `/get_token`
+
+| Name | Type | Required | Description |
+|--------|------|----------|-------------|
+| username | String | Yes | Your id |
+| pass_string | String | Yes | Your password |
+
+ - Return your token.
+
 ### Stop machine(s)
 
 - **URL**: `/stop_machine`
@@ -18,6 +28,7 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 
 | Name | Type | Required | Description |
 |--------|------|----------|-------------|
+| token | String | Yes | Your login token |
 | machine | int | No | ID of the machine to stop |
 
 - If no parameter is provided, this endpoint will stop all machines stored in the database.
@@ -34,9 +45,10 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 
 | Name    | Type | Required | Description |
 |--------|------|----------|-------------|
+| token | String | Yes | Your login token |
 | machine | int  | No | ID of the machine to start |
 
-- If no parameter is provided, this endpoint will start all machines stored in the database.
+- If no parameter machine is provided, this endpoint will start all machines stored in the database.
 - If machine is provided, only the specified machine will be started.
 
 ---
@@ -50,9 +62,10 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 
 | Name | Type | Required | Description |
 |--------|------|----------|-------------|
+| token | String | Yes | Your login token |
 | machine | int  | No | ID of the machine to set in maintenance mode |
 
-- If no parameter is provided, this endpoint will set **all machines** in maintenance state.
+- If no parameter machine is provided, this endpoint will set all machines in maintenance state.
 - If machine is provided, only the specified machine will be affected.
 
 ---
@@ -66,6 +79,7 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 
 | Name | Type | Required | Description |
 |-----|------|----------|-------------|
+| token | String | Yes | Your login token |
 | hostname | string | Yes | Machine hostname |
 | ip_addr | string | Yes | IPv4 address |
 | mac_addr | string | Yes | MAC address |
@@ -73,7 +87,7 @@ The Rust code is used to inject data into the MySQL database to roughly simulate
 | machine_type | string | Yes | Machine type (Storage, Compute, GPU, GPU_Compute, switch, router, firewall) |
 
 #### Description
-Creates a new machine entry in the database.
+Creates a new machine in the database.
 
 ---
 
@@ -86,6 +100,7 @@ Creates a new machine entry in the database.
 
 | Name | Type | Required | Description |
 |-----|------|----------|-------------|
+| token | String | Yes | Your login token |
 | id | int | Yes | ID of the machine to delete |
 
 #### Description
@@ -102,6 +117,7 @@ Deletes a machine from the database.
 
 | Name | Type | Required | Description |
 |-----|------|----------|-------------|
+| token | String | Yes | Your login token |
 | brand | string | Yes | Component brand |
 | model | string | Yes | Component model |
 | machine_id | string | No | Associated machine ID |
@@ -123,6 +139,7 @@ Creates a new component and optionally attaches it to a machine.
 
 | Name | Type | Required | Description |
 |-----|------|----------|-------------|
+| token | String | Yes | Your login token |
 | id | int | Yes | ID of the component to delete |
 
 #### Description
@@ -136,17 +153,8 @@ Deletes a component from the database.
 - **Method**: `GET`
 
 #### Description
-Triggers the high temperature simulation scenario (alerts, safety actions, automatic shutdown).
+Triggers the high temperature simulation scenario.
 
----
-
-### Test database connection
-
-- **URL**: `/test_db`
-- **Method**: `GET`
-
-#### Description
-Checks the database connection and returns its status.
 
 ## Database structure
 
